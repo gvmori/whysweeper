@@ -71,28 +71,26 @@ class Grid(object):
         if self.grid[x][y].mine_count:
             return
 
-        ## if empty node, bfs to to reveal all connected numberless nodes and
-        ## one row of numbered nodes
+        ## if empty node, search to to reveal all connected numberless nodes
+        ## and one row of numbered nodes
         seen_nodes = set([])
         nodes_to_search = set([self.grid[x][y]])
         while nodes_to_search:
             current_node = nodes_to_search.pop()
-            adjacent_nodes = self.get_adjacent_nodes(current_node.x, current_node.y)
-            for n in adjacent_nodes:
+            for n in self.get_adjacent_nodes(current_node.x, current_node.y):
                 if n.mine_count:
                     n.revealed = True
-            adjacent_nodes = [n for n in adjacent_nodes if n not in seen_nodes and not n.revealed and not n.mine_count and not n.mine]
-            for n in adjacent_nodes: nodes_to_search.add(n)
+                if n in seen_nodes or n.revealed or n.mine_count or n.mine:
+                    continue
+                nodes_to_search.add(n)
             current_node.revealed = True
             seen_nodes.add(current_node)
 
     def get_adjacent_nodes(self, x, y):
-        adjacent_nodes = []
         for i in range(max(0, x-1), min(self.max_x, x+2)):
             for j in range(max(0, y-1), min(self.max_y, y+2)):
                 if i == x and j == y: continue
-                adjacent_nodes.append(self.grid[i][j])
-        return adjacent_nodes
+                yield self.grid[i][j]
 
     def __repr__(self):
         outstring = ""
